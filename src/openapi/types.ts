@@ -17,6 +17,8 @@ export interface SchemaObject {
     $ref?: string;
     minimum?: number;
     maximum?: number;
+    minProperties?: number;
+    maxProperties?: number;
 }
 
 export interface ParameterObject {
