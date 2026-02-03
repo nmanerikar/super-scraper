@@ -144,8 +144,7 @@
             "description": "Take a screenshot of the visible viewport. Returns base64-encoded PNG in json_response mode, or raw binary otherwise.",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "default": false
+              "type": "boolean"
             },
             "example": true
           },
@@ -155,8 +154,7 @@
             "description": "Take a full-page screenshot (entire scrollable area). Overrides screenshot parameter.",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "default": false
+              "type": "boolean"
             },
             "example": true
           },
@@ -196,8 +194,7 @@
             "description": "Return response as JSON with metadata including cookies, headers, XHR requests, and more. Without this, returns raw HTML/binary content.",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "default": false
+              "type": "boolean"
             },
             "example": true
           },
@@ -207,8 +204,7 @@
             "description": "Return the original page source HTML instead of the rendered DOM. Useful for debugging or when you need the unmodified HTML.",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "default": false
+              "type": "boolean"
             },
             "example": false
           },
@@ -218,8 +214,7 @@
             "description": "Return the actual HTTP status code from the target website instead of 200. Useful for detecting errors or redirects.",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "default": false
+              "type": "boolean"
             },
             "example": true
           },
@@ -229,8 +224,7 @@
             "description": "Forward custom headers to the target website. Headers should be prefixed with \"Spb-\" or \"spb-\" (prefix is stripped before forwarding).",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "default": false
+              "type": "boolean"
             },
             "example": true
           },
@@ -240,8 +234,7 @@
             "description": "Forward all non-prefixed headers directly to the target website without modification.",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "default": false
+              "type": "boolean"
             },
             "example": true
           },
@@ -284,8 +277,7 @@
             "description": "Use premium residential proxies for better success rates on difficult targets. Also accepts: `stealth_proxy`, `premium` (ScraperAPI), `ultra_premium` (ScraperAPI).",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "default": false
+              "type": "boolean"
             },
             "example": true
           },
@@ -295,8 +287,7 @@
             "description": "Alias for premium_proxy. Use premium residential proxies for better success rates.",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "default": false
+              "type": "boolean"
             },
             "example": true
           },
@@ -316,8 +307,7 @@
             "description": "Block resource types to speed up page loading. Set to true to block common resource types (images, fonts, stylesheets, media).",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "default": false
+              "type": "boolean"
             },
             "example": true
           },
@@ -327,8 +317,7 @@
             "description": "Enable optimizations for scraping Google Search results.",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "default": false
+              "type": "boolean"
             },
             "example": true
           },
@@ -373,8 +362,7 @@
             "description": "Fetch binary files (images, PDFs, etc.) instead of HTML. Returns the raw binary content. (ScraperAPI compatible)",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "default": false
+              "type": "boolean"
             },
             "example": true
           },
@@ -384,8 +372,7 @@
             "description": "Forward all request headers to the target website. Similar to forward_headers_pure but may include additional headers. (ScraperAPI compatible)",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "default": false
+              "type": "boolean"
             },
             "example": true
           }

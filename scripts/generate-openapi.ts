@@ -36,7 +36,7 @@ function buildParameter(name: string, meta: typeof parameterMetadata[string]): P
     if (meta.maximum !== undefined) {
         schema.maximum = meta.maximum;
     }
-    if (meta.default !== undefined) {
+    if (meta.default !== undefined && meta.default !== false) {
         schema.default = meta.default;
     }
 
