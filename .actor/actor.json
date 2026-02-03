@@ -7,5 +7,6 @@
 	"meta": {
 		"templateId": "ts-crawlee-playwright-chrome"
 	},
-	"input": "./input_schema.json"
+	"input": "./input_schema.json",
+    "webServerSchema": "./openapi.json"
 }

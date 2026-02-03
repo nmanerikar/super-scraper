@@ -232,7 +232,7 @@ function main(): void {
     console.log('Generating OpenAPI specification...');
 
     const spec = generateOpenAPISpec();
-    const outputPath = resolve(__dirname, '../openapi.json');
+    const outputPath = resolve(__dirname, '../.actor/openapi.json');
 
     writeFileSync(outputPath, JSON.stringify(spec, null, 2));
 
