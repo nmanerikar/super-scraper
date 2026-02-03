@@ -1,0 +1,1189 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "SuperScraper API",
+    "description": "SuperScraper is a unified web scraping API that provides compatibility with multiple scraping services (ScrapingBee, ScrapingAnt, ScraperAPI).\n\n## Features\n- JavaScript rendering with headless browser\n- Screenshot capture (viewport, full page, or specific element)\n- Custom JavaScript execution via scenarios\n- Data extraction with CSS selectors\n- Proxy support (datacenter and residential)\n- Cookie and header forwarding\n- XHR/Fetch request capture\n\n## Response Formats\n- **HTML (default)**: Returns raw HTML content\n- **JSON (json_response=true)**: Returns structured response with metadata\n- **Screenshot**: Returns PNG image when only screenshot is requested\n- **Extracted data**: Returns JSON when extract_rules are provided\n\n## Compatibility\nThis API accepts parameters from multiple scraping services:\n- **ScrapingBee** (primary): All parameters use ScrapingBee naming\n- **ScrapingAnt**: Compatible parameters like `browser`, `js_snippet`, `proxy_type`\n- **ScraperAPI**: Compatible parameters like `render`, `premium`, `binary_target`",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Apify",
+      "url": "https://apify.com"
+    },
+    "license": {
+      "name": "ISC"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://super-scraper.apify.actor",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Scraping",
+      "description": "Web scraping operations"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Scrape a web page",
+        "description": "Fetches and processes a web page with optional JavaScript rendering, screenshots, and data extraction.\n\n## Basic Usage\n```\nGET /?url=https://example.com\n```\n\n## With JavaScript Rendering\n```\nGET /?url=https://example.com&render_js=true&wait=2000\n```\n\n## With Data Extraction\n```\nGET /?url=https://example.com&extract_rules={\"title\":{\"selector\":\"h1\",\"type\":\"item\",\"output\":\"@text\"}}\n```\n\n## With Screenshot\n```\nGET /?url=https://example.com&screenshot=true&json_response=true\n```",
+        "operationId": "scrape",
+        "tags": [
+          "Scraping"
+        ],
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "description": "The URL to scrape. Must be a fully qualified URL including the protocol (http:// or https://).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "https://example.com"
+          },
+          {
+            "name": "render_js",
+            "in": "query",
+            "description": "Enable JavaScript rendering using a headless browser. When false, uses a simple HTTP request without browser. Also accepts: `browser` (ScrapingAnt), `render` (ScraperAPI).",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            },
+            "example": true
+          },
+          {
+            "name": "device",
+            "in": "query",
+            "description": "Device type to emulate. Affects User-Agent and viewport dimensions. Also accepts: `device_type` (ScraperAPI).",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "desktop",
+                "mobile"
+              ],
+              "default": "desktop"
+            },
+            "example": "desktop"
+          },
+          {
+            "name": "window_width",
+            "in": "query",
+            "description": "Browser viewport width in pixels. Only applies when render_js is enabled.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 100,
+              "maximum": 3840,
+              "default": 1920
+            },
+            "example": 1920
+          },
+          {
+            "name": "window_height",
+            "in": "query",
+            "description": "Browser viewport height in pixels. Only applies when render_js is enabled.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 100,
+              "maximum": 2160,
+              "default": 1080
+            },
+            "example": 1080
+          },
+          {
+            "name": "wait",
+            "in": "query",
+            "description": "Time to wait in milliseconds after page load before returning content.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 35000
+            },
+            "example": 1000
+          },
+          {
+            "name": "wait_for",
+            "in": "query",
+            "description": "CSS selector to wait for before returning content. Useful for SPAs where content loads dynamically. Also accepts: `wait_for_selector` (ScrapingAnt/ScraperAPI).",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "#main-content"
+          },
+          {
+            "name": "wait_browser",
+            "in": "query",
+            "description": "Browser event to wait for before considering the page loaded.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "load",
+                "domcontentloaded",
+                "networkidle"
+              ],
+              "default": "load"
+            },
+            "example": "networkidle"
+          },
+          {
+            "name": "screenshot",
+            "in": "query",
+            "description": "Take a screenshot of the visible viewport. Returns base64-encoded PNG in json_response mode, or raw binary otherwise.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": true
+          },
+          {
+            "name": "screenshot_full_page",
+            "in": "query",
+            "description": "Take a full-page screenshot (entire scrollable area). Overrides screenshot parameter.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": true
+          },
+          {
+            "name": "screenshot_selector",
+            "in": "query",
+            "description": "CSS selector of element to screenshot. Overrides screenshot and screenshot_full_page parameters.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "#hero-image"
+          },
+          {
+            "name": "extract_rules",
+            "in": "query",
+            "description": "JSON object defining extraction rules. Keys are output field names, values define selectors and extraction behavior. Returns extracted data as JSON.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{\"title\": {\"selector\": \"h1\", \"type\": \"item\"}}"
+          },
+          {
+            "name": "js_scenario",
+            "in": "query",
+            "description": "JSON object defining a sequence of browser actions. Each instruction is an object with action name as key and parameter as value. Actions: wait (ms), wait_for (selector), click (selector), scroll_x/scroll_y (pixels), fill ([selector, value]), wait_browser (load|domcontentloaded|networkidle), evaluate (js code), wait_for_and_click (selector).",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{\"instructions\": [{\"click\": \"#load-more\"}, {\"wait\": 1000}]}"
+          },
+          {
+            "name": "json_response",
+            "in": "query",
+            "description": "Return response as JSON with metadata including cookies, headers, XHR requests, and more. Without this, returns raw HTML/binary content.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": true
+          },
+          {
+            "name": "return_page_source",
+            "in": "query",
+            "description": "Return the original page source HTML instead of the rendered DOM. Useful for debugging or when you need the unmodified HTML.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": false
+          },
+          {
+            "name": "transparent_status_code",
+            "in": "query",
+            "description": "Return the actual HTTP status code from the target website instead of 200. Useful for detecting errors or redirects.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": true
+          },
+          {
+            "name": "forward_headers",
+            "in": "query",
+            "description": "Forward custom headers to the target website. Headers should be prefixed with \"Spb-\" or \"spb-\" (prefix is stripped before forwarding).",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": true
+          },
+          {
+            "name": "forward_headers_pure",
+            "in": "query",
+            "description": "Forward all non-prefixed headers directly to the target website without modification.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": true
+          },
+          {
+            "name": "cookies",
+            "in": "query",
+            "description": "Cookies to send with the request. Format: \"name1=value1;name2=value2\" or JSON array of cookie objects.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "session_id=abc123;user=john"
+          },
+          {
+            "name": "timeout",
+            "in": "query",
+            "description": "Maximum time in milliseconds to wait for the page to load. Includes all network requests and JavaScript execution.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1000,
+              "maximum": 3600000,
+              "default": 140000
+            },
+            "example": 30000
+          },
+          {
+            "name": "own_proxy",
+            "in": "query",
+            "description": "Use your own proxy server. Format: \"http://user:pass@host:port\" or \"http://host:port\".",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "http://user:pass@proxy.example.com:8080"
+          },
+          {
+            "name": "premium_proxy",
+            "in": "query",
+            "description": "Use premium residential proxies for better success rates on difficult targets. Also accepts: `stealth_proxy`, `premium` (ScraperAPI), `ultra_premium` (ScraperAPI).",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": true
+          },
+          {
+            "name": "stealth_proxy",
+            "in": "query",
+            "description": "Alias for premium_proxy. Use premium residential proxies for better success rates.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": true
+          },
+          {
+            "name": "country_code",
+            "in": "query",
+            "description": "Two-letter ISO country code for geo-targeting. Proxy will use an IP from the specified country. Also accepts: `proxy_country` (ScrapingAnt).",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "US"
+          },
+          {
+            "name": "block_resources",
+            "in": "query",
+            "description": "Block resource types to speed up page loading. Set to true to block common resource types (images, fonts, stylesheets, media).",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": true
+          },
+          {
+            "name": "custom_google",
+            "in": "query",
+            "description": "Enable optimizations for scraping Google Search results.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": true
+          },
+          {
+            "name": "js_snippet",
+            "in": "query",
+            "description": "Base64-encoded JavaScript snippet to execute on the page. The script runs after page load but before content extraction. (ScrapingAnt compatible)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "Y29uc29sZS5sb2coIkhlbGxvIik="
+          },
+          {
+            "name": "proxy_type",
+            "in": "query",
+            "description": "Type of proxy to use. \"datacenter\" is faster but may be blocked by some sites. \"residential\" has better success rates. (ScrapingAnt compatible)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "datacenter",
+                "residential"
+              ],
+              "default": "datacenter"
+            },
+            "example": "residential"
+          },
+          {
+            "name": "block_resource",
+            "in": "query",
+            "description": "Comma-separated list of resource types to block (e.g., \"image,stylesheet,font\"). More granular than block_resources. (ScrapingAnt compatible)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "image,stylesheet,font,media"
+          },
+          {
+            "name": "binary_target",
+            "in": "query",
+            "description": "Fetch binary files (images, PDFs, etc.) instead of HTML. Returns the raw binary content. (ScraperAPI compatible)",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": true
+          },
+          {
+            "name": "keep_headers",
+            "in": "query",
+            "description": "Forward all request headers to the target website. Similar to forward_headers_pure but may include additional headers. (ScraperAPI compatible)",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "example": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response. Content type depends on request parameters.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "Raw HTML content of the page"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/VerboseResult"
+                    },
+                    {
+                      "type": "object",
+                      "description": "Extracted data (when using extract_rules without json_response)",
+                      "additionalProperties": true
+                    }
+                  ]
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "Screenshot image (when screenshot requested without json_response)"
+                }
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "Binary file content (when binary_target=true)"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - missing or invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "Request timeout - page took too long to load",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Target website error (when transparent_status_code=true)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "VerboseResult": {
+        "type": "object",
+        "description": "Full response with metadata (returned when json_response=true)",
+        "properties": {
+          "body": {
+            "oneOf": [
+              {
+                "type": "string",
+                "description": "HTML content or extracted data as string"
+              },
+              {
+                "type": "object",
+                "description": "Extracted data as JSON object"
+              }
+            ],
+            "description": "Page content or extracted data"
+          },
+          "cookies": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "description": "Browser cookie",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Cookie name"
+                },
+                "value": {
+                  "type": "string",
+                  "description": "Cookie value"
+                },
+                "domain": {
+                  "type": "string",
+                  "description": "Cookie domain"
+                },
+                "path": {
+                  "type": "string",
+                  "description": "Cookie path"
+                },
+                "expires": {
+                  "type": "number",
+                  "description": "Expiration timestamp",
+                  "nullable": true
+                },
+                "httpOnly": {
+                  "type": "boolean",
+                  "description": "HTTP-only flag"
+                },
+                "secure": {
+                  "type": "boolean",
+                  "description": "Secure flag"
+                },
+                "sameSite": {
+                  "type": "string",
+                  "enum": [
+                    "Strict",
+                    "Lax",
+                    "None"
+                  ],
+                  "description": "SameSite attribute"
+                }
+              }
+            },
+            "description": "Cookies set by the page"
+          },
+          "evaluateResults": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Results from evaluate actions in js_scenario"
+          },
+          "jsScenarioReport": {
+            "oneOf": [
+              {
+                "type": "object",
+                "description": "Report of JS scenario execution",
+                "properties": {
+                  "tasks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "description": "Report for a single JS scenario instruction",
+                      "properties": {
+                        "task": {
+                          "type": "string",
+                          "enum": [
+                            "wait",
+                            "wait_for",
+                            "click",
+                            "scroll_x",
+                            "scroll_y",
+                            "fill",
+                            "wait_browser",
+                            "evaluate"
+                          ],
+                          "description": "The action that was executed"
+                        },
+                        "params": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          ],
+                          "description": "Parameters passed to the action"
+                        },
+                        "success": {
+                          "type": "boolean",
+                          "description": "Whether the action succeeded"
+                        },
+                        "duration": {
+                          "type": "number",
+                          "description": "Execution time in milliseconds"
+                        }
+                      },
+                      "required": [
+                        "task",
+                        "params",
+                        "success",
+                        "duration"
+                      ]
+                    },
+                    "description": "Individual task reports"
+                  },
+                  "taskExecuted": {
+                    "type": "integer",
+                    "description": "Number of tasks executed"
+                  },
+                  "taskSuccess": {
+                    "type": "integer",
+                    "description": "Number of successful tasks"
+                  },
+                  "taskFailure": {
+                    "type": "integer",
+                    "description": "Number of failed tasks"
+                  },
+                  "totalDuration": {
+                    "type": "number",
+                    "description": "Total execution time in milliseconds"
+                  }
+                },
+                "required": [
+                  "tasks",
+                  "taskExecuted",
+                  "taskSuccess",
+                  "taskFailure",
+                  "totalDuration"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Empty object if no scenario was executed"
+              }
+            ],
+            "description": "JS scenario execution report"
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "description": "Response headers from the target page"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "html",
+              "json",
+              "file"
+            ],
+            "description": "Content type of the response body"
+          },
+          "screenshot": {
+            "type": "string",
+            "nullable": true,
+            "description": "Base64-encoded PNG screenshot (if requested)"
+          },
+          "iframes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "description": "Iframe content data",
+              "properties": {
+                "src": {
+                  "type": "string",
+                  "description": "Iframe source URL"
+                },
+                "content": {
+                  "type": "string",
+                  "description": "Iframe HTML content"
+                }
+              },
+              "required": [
+                "src",
+                "content"
+              ]
+            },
+            "description": "Content of iframes on the page"
+          },
+          "xhr": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "description": "Captured XHR/Fetch request data",
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "description": "Request URL"
+                },
+                "statusCode": {
+                  "type": "integer",
+                  "description": "HTTP status code"
+                },
+                "method": {
+                  "type": "string",
+                  "description": "HTTP method (GET, POST, etc.)"
+                },
+                "requestHeaders": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "Request headers sent"
+                },
+                "headers": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "Response headers received"
+                },
+                "body": {
+                  "type": "string",
+                  "description": "Response body"
+                }
+              },
+              "required": [
+                "url",
+                "statusCode",
+                "method",
+                "requestHeaders",
+                "headers",
+                "body"
+              ]
+            },
+            "description": "Captured XHR/Fetch requests made by the page"
+          },
+          "initialStatusCode": {
+            "type": "integer",
+            "nullable": true,
+            "description": "HTTP status code of the initial page request"
+          },
+          "resolvedUrl": {
+            "type": "string",
+            "description": "Final URL after any redirects"
+          },
+          "metadata": {
+            "type": "string",
+            "description": "Additional metadata (if available)"
+          }
+        },
+        "required": [
+          "body",
+          "cookies",
+          "evaluateResults",
+          "jsScenarioReport",
+          "headers",
+          "type",
+          "screenshot",
+          "iframes",
+          "xhr",
+          "initialStatusCode",
+          "resolvedUrl"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "description": "Error response",
+        "properties": {
+          "errorMessage": {
+            "type": "string",
+            "description": "Human-readable error message"
+          }
+        },
+        "required": [
+          "errorMessage"
+        ]
+      },
+      "Cookie": {
+        "type": "object",
+        "description": "Browser cookie",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Cookie name"
+          },
+          "value": {
+            "type": "string",
+            "description": "Cookie value"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Cookie domain"
+          },
+          "path": {
+            "type": "string",
+            "description": "Cookie path"
+          },
+          "expires": {
+            "type": "number",
+            "description": "Expiration timestamp",
+            "nullable": true
+          },
+          "httpOnly": {
+            "type": "boolean",
+            "description": "HTTP-only flag"
+          },
+          "secure": {
+            "type": "boolean",
+            "description": "Secure flag"
+          },
+          "sameSite": {
+            "type": "string",
+            "enum": [
+              "Strict",
+              "Lax",
+              "None"
+            ],
+            "description": "SameSite attribute"
+          }
+        }
+      },
+      "XHRRequestData": {
+        "type": "object",
+        "description": "Captured XHR/Fetch request data",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Request URL"
+          },
+          "statusCode": {
+            "type": "integer",
+            "description": "HTTP status code"
+          },
+          "method": {
+            "type": "string",
+            "description": "HTTP method (GET, POST, etc.)"
+          },
+          "requestHeaders": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Request headers sent"
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Response headers received"
+          },
+          "body": {
+            "type": "string",
+            "description": "Response body"
+          }
+        },
+        "required": [
+          "url",
+          "statusCode",
+          "method",
+          "requestHeaders",
+          "headers",
+          "body"
+        ]
+      },
+      "IFrameData": {
+        "type": "object",
+        "description": "Iframe content data",
+        "properties": {
+          "src": {
+            "type": "string",
+            "description": "Iframe source URL"
+          },
+          "content": {
+            "type": "string",
+            "description": "Iframe HTML content"
+          }
+        },
+        "required": [
+          "src",
+          "content"
+        ]
+      },
+      "JsScenarioReport": {
+        "type": "object",
+        "description": "Report of JS scenario execution",
+        "properties": {
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "description": "Report for a single JS scenario instruction",
+              "properties": {
+                "task": {
+                  "type": "string",
+                  "enum": [
+                    "wait",
+                    "wait_for",
+                    "click",
+                    "scroll_x",
+                    "scroll_y",
+                    "fill",
+                    "wait_browser",
+                    "evaluate"
+                  ],
+                  "description": "The action that was executed"
+                },
+                "params": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ],
+                  "description": "Parameters passed to the action"
+                },
+                "success": {
+                  "type": "boolean",
+                  "description": "Whether the action succeeded"
+                },
+                "duration": {
+                  "type": "number",
+                  "description": "Execution time in milliseconds"
+                }
+              },
+              "required": [
+                "task",
+                "params",
+                "success",
+                "duration"
+              ]
+            },
+            "description": "Individual task reports"
+          },
+          "taskExecuted": {
+            "type": "integer",
+            "description": "Number of tasks executed"
+          },
+          "taskSuccess": {
+            "type": "integer",
+            "description": "Number of successful tasks"
+          },
+          "taskFailure": {
+            "type": "integer",
+            "description": "Number of failed tasks"
+          },
+          "totalDuration": {
+            "type": "number",
+            "description": "Total execution time in milliseconds"
+          }
+        },
+        "required": [
+          "tasks",
+          "taskExecuted",
+          "taskSuccess",
+          "taskFailure",
+          "totalDuration"
+        ]
+      },
+      "IndividualInstructionReport": {
+        "type": "object",
+        "description": "Report for a single JS scenario instruction",
+        "properties": {
+          "task": {
+            "type": "string",
+            "enum": [
+              "wait",
+              "wait_for",
+              "click",
+              "scroll_x",
+              "scroll_y",
+              "fill",
+              "wait_browser",
+              "evaluate"
+            ],
+            "description": "The action that was executed"
+          },
+          "params": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ],
+            "description": "Parameters passed to the action"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the action succeeded"
+          },
+          "duration": {
+            "type": "number",
+            "description": "Execution time in milliseconds"
+          }
+        },
+        "required": [
+          "task",
+          "params",
+          "success",
+          "duration"
+        ]
+      },
+      "ExtractRule": {
+        "type": "object",
+        "description": "Rule for extracting data from the page",
+        "properties": {
+          "selector": {
+            "type": "string",
+            "description": "CSS selector to target elements"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "list",
+              "item"
+            ],
+            "description": "Whether to extract a single item or a list of items"
+          },
+          "output": {
+            "oneOf": [
+              {
+                "type": "string",
+                "description": "Attribute name or special value (@text, @html)"
+              },
+              {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ExtractRule"
+                },
+                "description": "Nested extraction rules"
+              }
+            ],
+            "description": "What to extract from matched elements"
+          },
+          "clean": {
+            "type": "boolean",
+            "description": "Whether to clean/trim the extracted text"
+          }
+        },
+        "required": [
+          "selector",
+          "type",
+          "output"
+        ]
+      },
+      "ExtractRules": {
+        "type": "object",
+        "description": "Extract rules object. Keys are output field names, values are extraction rules.",
+        "additionalProperties": {
+          "type": "object",
+          "description": "Rule for extracting data from the page",
+          "properties": {
+            "selector": {
+              "type": "string",
+              "description": "CSS selector to target elements"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "list",
+                "item"
+              ],
+              "description": "Whether to extract a single item or a list of items"
+            },
+            "output": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "description": "Attribute name or special value (@text, @html)"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/ExtractRule"
+                  },
+                  "description": "Nested extraction rules"
+                }
+              ],
+              "description": "What to extract from matched elements"
+            },
+            "clean": {
+              "type": "boolean",
+              "description": "Whether to clean/trim the extracted text"
+            }
+          },
+          "required": [
+            "selector",
+            "type",
+            "output"
+          ]
+        },
+        "example": {
+          "title": {
+            "selector": "h1",
+            "type": "item",
+            "output": "@text"
+          },
+          "links": {
+            "selector": "a",
+            "type": "list",
+            "output": "@href"
+          }
+        }
+      },
+      "JsScenario": {
+        "type": "object",
+        "description": "JavaScript scenario to execute on the page. Each instruction is an object with the action name as key and parameter as value.",
+        "properties": {
+          "instructions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "description": "Single instruction object where key is the action name and value is the parameter. Actions: wait (ms), wait_for (selector), click (selector), scroll_x (pixels), scroll_y (pixels), fill ([selector, value]), wait_browser (load|domcontentloaded|networkidle), evaluate (js code), wait_for_and_click (selector)",
+              "minProperties": 1,
+              "maxProperties": 1,
+              "additionalProperties": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              }
+            },
+            "description": "List of actions to perform in order"
+          },
+          "strict": {
+            "type": "boolean",
+            "description": "If true, stop execution on first failure. Default is true.",
+            "default": true
+          }
+        },
+        "required": [
+          "instructions"
+        ],
+        "example": {
+          "instructions": [
+            {
+              "click": "#load-more"
+            },
+            {
+              "wait": 1000
+            },
+            {
+              "scroll_y": 500
+            },
+            {
+              "wait_for": ".lazy-content"
+            }
+          ],
+          "strict": false
+        }
+      }
+    }
+  }
+}
