@@ -54,8 +54,7 @@
             "description": "Enable JavaScript rendering using a headless browser. When false, uses a simple HTTP request without browser. Also accepts: `browser` (ScrapingAnt), `render` (ScraperAPI).",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "default": true
+              "type": "boolean"
             },
             "example": true
           },
@@ -69,8 +68,7 @@
               "enum": [
                 "desktop",
                 "mobile"
-              ],
-              "default": "desktop"
+              ]
             },
             "example": "desktop"
           },
@@ -82,8 +80,7 @@
             "schema": {
               "type": "integer",
               "minimum": 100,
-              "maximum": 3840,
-              "default": 1920
+              "maximum": 3840
             },
             "example": 1920
           },
@@ -95,8 +92,7 @@
             "schema": {
               "type": "integer",
               "minimum": 100,
-              "maximum": 2160,
-              "default": 1080
+              "maximum": 2160
             },
             "example": 1080
           },
@@ -133,8 +129,7 @@
                 "load",
                 "domcontentloaded",
                 "networkidle"
-              ],
-              "default": "load"
+              ]
             },
             "example": "networkidle"
           },
@@ -256,8 +251,7 @@
             "schema": {
               "type": "integer",
               "minimum": 1000,
-              "maximum": 3600000,
-              "default": 140000
+              "maximum": 3600000
             },
             "example": 30000
           },
@@ -341,8 +335,7 @@
               "enum": [
                 "datacenter",
                 "residential"
-              ],
-              "default": "datacenter"
+              ]
             },
             "example": "residential"
           },

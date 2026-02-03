@@ -36,9 +36,8 @@ function buildParameter(name: string, meta: typeof parameterMetadata[string]): P
     if (meta.maximum !== undefined) {
         schema.maximum = meta.maximum;
     }
-    if (meta.default !== undefined && meta.default !== false) {
-        schema.default = meta.default;
-    }
+    // Don't include defaults in OpenAPI spec - let API apply them internally
+    // This prevents UI tools from pre-populating optional parameters
 
     const param: ParameterObject = {
         name,
